@@ -1,0 +1,11 @@
+inputs = ["src"]
+output_folder = "."
+package_name = "limine"
+
+remove = ["LIMINE_H"]
+remove_type_prefix = "limine_"
+remove_macro_prefix = "LIMINE_"
+
+struct_field_overrides = {
+    "limine_framebuffer_response.framebuffers" = "[^]"
+}
