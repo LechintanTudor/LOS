@@ -56,7 +56,7 @@ memory_init_from_limine :: proc "contextless" () {
 	last_page_index := u64(0)
 
 	// Initialize the pages based on Limine's memory maps.
-	for entry, i in memmap_entries {
+	for entry in memmap_entries {
 		start := entry.base / MEMORY_PAGE_SIZE
 		end := start + entry.length / MEMORY_PAGE_SIZE
 

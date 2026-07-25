@@ -28,6 +28,19 @@ BUILD_ASM_OBJ = $(BUILD_DIR)/asm.o
 BUILD_KERNEL_OBJ = $(BUILD_DIR)/kernel.o
 BUILD_KERNEL = $(BUILD_DIR)/kernel.elf
 
+ODIN_CHECK_FLAGS = \
+	-collection:extern=extern \
+	-bedrock \
+	-target:freestanding_amd64_sysv \
+	-no-entry-point \
+	-no-thread-local
+
+ODIN_BUILD_FLAGS = \
+	$(ODIN_CHECK_FLAGS) \
+	-build-mode:obj \
+	-use-single-module \
+	-no-crt
+
 #
 # Source
 #
@@ -45,7 +58,7 @@ ODIN_SRC = \
 # Phony
 #
 
-.PHONY: all run clean
+.PHONY: all run check clean
 
 all: $(RUN_ALL)
 
@@ -55,6 +68,9 @@ run: all
 		-drive if=pflash,format=raw,file="$(RUN_OVMF_VARS)" \
 		-drive format=raw,file=fat:rw:"$(BOOT_DIR)" \
 		-debugcon stdio
+
+check:
+	odin check src_odin -vet $(ODIN_CHECK_FLAGS)
 
 clean:
 	rm -rf "$(BUILD_DIR)" "$(RUN_DIR)"
@@ -89,24 +105,14 @@ $(BUILD_ASM_OBJ): $(ASM_SRC)
 
 $(BUILD_KERNEL_OBJ): $(ODIN_SRC)
 	mkdir -p "$(BUILD_DIR)"
-
-	odin build src_odin \
-	    -out:"$@" \
-	    -collection:extern=extern \
-	    -bedrock \
-		-build-mode:obj \
-		-use-single-module \
-		-target:freestanding_amd64_sysv \
-		-no-crt \
-		-no-entry-point \
-		-no-thread-local
+	odin build src_odin -out:"$@" $(ODIN_BUILD_FLAGS)
 
 	# Temporary fix for Odin compiler bug.
 	mv build/kernel.obj build/kernel.o
 
 $(BUILD_KERNEL): $(BUILD_KERNEL_OBJ) $(BUILD_ASM_OBJ) config/link.ld
 	ld $(BUILD_KERNEL_OBJ) $(BUILD_ASM_OBJ) \
-    	-o "$@" \
-        -nostdlib \
-        -static \
-        -T config/link.ld
+	    -o "$@" \
+	    -nostdlib \
+	    -static \
+	    -T config/link.ld
