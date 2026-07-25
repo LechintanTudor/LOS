@@ -263,7 +263,7 @@ memmap_entry :: struct {
 memmap_response :: struct {
 	revision:    u64,
 	entry_count: u64,
-	entries:     ^^memmap_entry,
+	entries:     [^]^memmap_entry,
 }
 
 memmap_request :: struct {
@@ -464,7 +464,12 @@ tsc_frequency_request :: struct {
 	response: ^tsc_frequency_response,
 }
 
-COMMON_MAGIC :: [2]u64{0xc7b1dd30df4c8b88, 0x0a82e883a194f07b}
+// odinfmt: disable
+
+COMMON_MAGIC :: [2]u64{
+	0xc7b1dd30df4c8b88,
+	0x0a82e883a194f07b,
+}
 
 REQUESTS_START_MARKER :: [4]u64 {
 	0xf6b8f4b39de7d1ae,
@@ -473,11 +478,28 @@ REQUESTS_START_MARKER :: [4]u64 {
 	0x181e920a7852b9d9,
 }
 
-REQUESTS_END_MARKER :: [2]u64{0xadc0e0531bb10d03, 0x9572709f31764c62}
+REQUESTS_END_MARKER :: [2]u64{
+	0xadc0e0531bb10d03,
+	0x9572709f31764c62,
+}
 
 FRAMEBUFFER_REQUEST_ID :: [4]u64 {
 	COMMON_MAGIC[0],
 	COMMON_MAGIC[1],
 	0x9d5827dcd881dd75,
 	0xa3148604f6fab11b,
+}
+
+HHDM_REQUEST_ID :: [4]u64{
+	COMMON_MAGIC[0],
+	COMMON_MAGIC[1],
+	0x48dcf1cb8ad2b852,
+	0x63984e959a98244b,
+}
+
+MEMMAP_REQUEST_ID :: [4]u64 {
+	COMMON_MAGIC[0],
+	COMMON_MAGIC[1],
+	0x67cf3d9d378a806f,
+	0xe304acdfc50c3c62,
 }

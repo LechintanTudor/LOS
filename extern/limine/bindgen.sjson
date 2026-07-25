@@ -7,5 +7,6 @@ remove_type_prefix = "limine_"
 remove_macro_prefix = "LIMINE_"
 
 struct_field_overrides = {
+    "limine_memmap_response.entries" = "[^]"
     "limine_framebuffer_response.framebuffers" = "[^]"
 }

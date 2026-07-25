@@ -5,8 +5,7 @@ import "base:intrinsics"
 @(export)
 kernel_main :: proc "contextless" () {
 	cpu_enable_sse()
-
-	log("Booting...")
+	memory_init_from_limine()
 
 	framebuffer := intrinsics.volatile_load(boot_framebuffer_request.response.framebuffers[0])
 	pixels := ([^]u32)(framebuffer.address)

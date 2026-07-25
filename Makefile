@@ -38,7 +38,8 @@ ODIN_SRC = \
 	src_odin/boot.odin \
 	src_odin/cpu.odin \
 	src_odin/log.odin \
-	src_odin/main.odin
+	src_odin/main.odin \
+	src_odin/memory.odin
 
 #
 # Phony
