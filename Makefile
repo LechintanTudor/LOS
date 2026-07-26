@@ -30,7 +30,6 @@ BUILD_KERNEL = $(BUILD_DIR)/kernel.elf
 
 ODIN_CHECK_FLAGS = \
 	-collection:extern=extern \
-	-bedrock \
 	-target:freestanding_amd64_sysv \
 	-no-entry-point \
 	-no-thread-local
@@ -50,7 +49,7 @@ ASM_SRC = src_asm/cpu.S
 ODIN_SRC = \
 	src_odin/boot.odin \
 	src_odin/cpu.odin \
-	src_odin/log.odin \
+	src_odin/logger.odin \
 	src_odin/main.odin \
 	src_odin/memory.odin
 
@@ -58,7 +57,7 @@ ODIN_SRC = \
 # Phony
 #
 
-.PHONY: all run check clean
+.PHONY: all run check fmt clean
 
 all: $(RUN_ALL)
 
@@ -71,6 +70,9 @@ run: all
 
 check:
 	odin check src_odin -vet $(ODIN_CHECK_FLAGS)
+
+fmt:
+	odinfmt -w src_odin
 
 clean:
 	rm -rf "$(BUILD_DIR)" "$(RUN_DIR)"

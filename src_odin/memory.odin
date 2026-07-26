@@ -1,6 +1,7 @@
 package kernel
 
 import "base:intrinsics"
+import "core:log"
 import "extern:limine"
 
 MEMORY_PAGE_SIZE :: 4096
@@ -19,7 +20,7 @@ Memory_Page_Flags_Bits :: enum u32 {
 	Used,
 }
 
-memory_init_from_limine :: proc "contextless" () {
+memory_init :: proc() {
 	hhdm := intrinsics.volatile_load(&boot_hhdm_request.response)
 	memory_hhdm_offset = uintptr(hhdm.offset)
 
@@ -49,7 +50,7 @@ memory_init_from_limine :: proc "contextless" () {
 	}
 
 	if memory_pages == nil {
-		log_string("Failed to map memory_pages")
+		log.error("Failed to map memory_pages")
 		return
 	}
 
@@ -86,7 +87,7 @@ memory_init_from_limine :: proc "contextless" () {
 			start_physical_address + uintptr(len(memory_pages)) * size_of(Memory_Page)
 
 		start := start_physical_address / MEMORY_PAGE_SIZE
-		end := memory_align_up(end_physical_address) / MEMORY_PAGE_SIZE
+		end := memory_align_forward_to_page_size(end_physical_address) / MEMORY_PAGE_SIZE
 
 		for &page in memory_pages[start:end] {
 			page = {
@@ -97,6 +98,6 @@ memory_init_from_limine :: proc "contextless" () {
 }
 
 @(require_results)
-memory_align_up :: proc "contextless" (address: uintptr) -> uintptr {
+memory_align_forward_to_page_size :: proc "contextless" (address: uintptr) -> uintptr {
 	return (address + MEMORY_PAGE_MASK) & ~uintptr(MEMORY_PAGE_MASK)
 }

@@ -1,11 +1,26 @@
 package kernel
 
 import "base:intrinsics"
+import "core:log"
+import "core:mem"
 
 @(export)
 kernel_main :: proc "contextless" () {
 	cpu_enable_sse()
-	memory_init_from_limine()
+
+	arena_buffer: [1024]byte
+	arena: mem.Arena
+
+	context = {}
+	mem.arena_init(&arena, arena_buffer[:])
+
+	context = {
+		temp_allocator = mem.arena_allocator(&arena),
+		logger         = logger_create(),
+	}
+
+	log.info("Booting...")
+	memory_init()
 
 	framebuffer := intrinsics.volatile_load(boot_framebuffer_request.response.framebuffers[0])
 	pixels := ([^]u32)(framebuffer.address)
