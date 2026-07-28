@@ -49,6 +49,9 @@ logger_proc :: proc(
 	}
 
 	cpu_port_write_byte(QEMU_DEBUG_PORT, '\n')
+
+	// TODO: Find a better way to do this.
+	free_all(context.temp_allocator)
 }
 
 @(require_results)
