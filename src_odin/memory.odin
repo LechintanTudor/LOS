@@ -1,6 +1,5 @@
 package kernel
 
-import "base:intrinsics"
 import "core:log"
 import "extern:limine"
 
@@ -21,11 +20,9 @@ Memory_Page_Flags_Bits :: enum u32 {
 }
 
 memory_init :: proc() {
-	hhdm := intrinsics.volatile_load(&boot_hhdm_request.response)
-	memory_hhdm_offset = uintptr(hhdm.offset)
+	memory_hhdm_offset = boot_get_hhdm_offset()
 
-	memmap := intrinsics.volatile_load(&boot_memmap_request.response)
-	memmap_entries := memmap.entries[:memmap.entry_count]
+	memmap_entries := boot_get_memmap_entries()
 	last_physical_address: uintptr
 
 	// Find the last usable physical address and clamp the memap entries to it.

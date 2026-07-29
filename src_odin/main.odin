@@ -20,9 +20,14 @@ kernel_main :: proc "contextless" () {
 	}
 
 	log.info("Booting...")
+
+	if !boot_validate() {
+		cpu_halt_forever()
+	}
+
 	memory_init()
 
-	framebuffer := intrinsics.volatile_load(boot_framebuffer_request.response.framebuffers[0])
+	framebuffer := boot_get_framebuffers()[0]
 	pixels := ([^]u32)(framebuffer.address)
 
 	for y in 0 ..< framebuffer.height {
