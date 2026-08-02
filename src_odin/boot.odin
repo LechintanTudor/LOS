@@ -63,6 +63,9 @@ boot_get_hhdm_offset :: proc "contextless" () -> uintptr {
 	return uintptr(response.offset)
 }
 
+// From Limine's protocol specification:
+// - The entries are guaranteed to be sorted by base address, lowest to highest.
+// - Usable entries are guaranteed to be 4096 byte aligned for both base and length.
 @(require_results)
 boot_get_memmap_entries :: proc "contextless" () -> []^limine.memmap_entry {
 	response := volatile_load(&boot_memmap_request.response)
