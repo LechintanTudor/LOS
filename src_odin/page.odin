@@ -83,8 +83,6 @@ page_init :: proc() -> (ok: bool) {
 		pages_end = Page_Number(page_align_forward((uintptr(end_ptr) - hhdm_offset)) / PAGE_SIZE)
 	}
 
-	free_block_count := 0
-
 	// Add the usable pages to the page allocator.
 	for entry in memmap_entries {
 		if entry.type != limine.MEMMAP_USABLE {
@@ -100,18 +98,11 @@ page_init :: proc() -> (ok: bool) {
 		}
 
 		for start < end {
-			order := page_range_get_order(start, end)
-			count := Page_Number(1) << order
-
-			log.infof("%v..%v, order %v", start, end, order)
-
-			free_block_count += 1
-			start += count
+			order := page_order_from_range(start, end)
+			page_allocator_add_free_block(order, start)
+			start += Page_Number(1) << order
 		}
 	}
-
-	log.infof("Free block count: %v", free_block_count)
-	log.infof("Page array pages: %v..%v", pages_start, pages_end)
 
 	ok = true
 	return
@@ -128,7 +119,7 @@ page_align_backward :: #force_inline proc "contextless" (address: uintptr) -> ui
 }
 
 @(require_results)
-page_range_get_order :: proc "contextless" (start, end: Page_Number) -> uint {
+page_order_from_range :: proc "contextless" (start, end: Page_Number) -> uint {
 	if end <= start {
 		return 0
 	}
@@ -136,4 +127,19 @@ page_range_get_order :: proc "contextless" (start, end: Page_Number) -> uint {
 	start_align := bits.count_trailing_zeros(start)
 	len_align := bits.log2(end - start)
 	return uint(min(start_align, len_align, PAGE_ALLOCATOR_MAX_ORDER - 1))
+}
+
+page_allocator_add_free_block :: proc "contextless" (order: uint, number: Page_Number) {
+	head := &page_allocator.free_blocks[order]
+
+	new := &pages[number]
+	new.next_free_block = head^
+	new.prev_free_block = nil
+	new.flags -= {.Used}
+
+	if head^ != nil {
+		head^.prev_free_block = new
+	}
+
+	head^ = new
 }
