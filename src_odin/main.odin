@@ -25,7 +25,7 @@ kernel_main :: proc "contextless" () {
 		cpu_halt_forever()
 	}
 
-	if !page_init() {
+	if !memory_init() {
 		cpu_halt_forever()
 	}
 

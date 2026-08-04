@@ -14,14 +14,13 @@ pages: []Page
 page_allocator: Page_Allocator
 
 Page_Allocator :: struct {
-	free_blocks: [PAGE_ALLOCATOR_MAX_ORDER]^Page,
+	free: [PAGE_ALLOCATOR_MAX_ORDER]List_Node,
 }
 
 Page :: struct {
-	next_free_block: ^Page,
-	prev_free_block: ^Page,
-	order:           Page_Order,
-	flags:           Page_Flags,
+	node:  List_Node,
+	order: Page_Order,
+	flags: Page_Flags,
 }
 
 Page_Number :: distinct u64
@@ -30,10 +29,12 @@ Page_Order :: distinct u32
 
 Page_Flags :: bit_set[Page_Flags_Bits;u32]
 
-Page_Flags_Bits :: enum u32 {}
+Page_Flags_Bits :: enum u32 {
+	Used,
+}
 
 @(require_results)
-page_init :: proc() -> (ok: bool) {
+memory_init :: proc() -> (ok: bool) {
 	hhdm_offset = boot_get_hhdm_offset()
 
 	memmap_entries := boot_get_memmap_entries()
@@ -85,6 +86,10 @@ page_init :: proc() -> (ok: bool) {
 	}
 
 	// Add the usable pages to the page allocator.
+	for &list in page_allocator.free {
+		list_init(&list)
+	}
+
 	for entry in memmap_entries {
 		if entry.type != limine.MEMMAP_USABLE {
 			continue
@@ -99,7 +104,7 @@ page_init :: proc() -> (ok: bool) {
 		}
 
 		for start < end {
-			order := page_order_from_range(start, end)
+			order := _page_order_from_range(start, end)
 			_page_allocator_add_block(&pages[start], order)
 			start += Page_Number(1) << order
 		}
@@ -107,6 +112,16 @@ page_init :: proc() -> (ok: bool) {
 
 	ok = true
 	return
+}
+
+@(require_results)
+page_allocator_alloc :: proc "contextless" (order: Page_Order) -> (block: ^Page, ok: bool) {
+	// Try to get a suitable block by splitting a higher-order block.
+	if list_is_empty(&page_allocator.free[order]) {
+		return _page_allocator_split(order)
+	}
+
+	return _page_allocator_remove_block_of_order(order), true
 }
 
 @(require_results)
@@ -120,33 +135,12 @@ page_align_backward :: #force_inline proc "contextless" (address: uintptr) -> ui
 }
 
 @(require_results)
-page_order_from_range :: proc "contextless" (start, end: Page_Number) -> Page_Order {
-	if end <= start {
-		return 0
-	}
-
-	start_align := Page_Order(bits.count_trailing_zeros(start))
-	len_align := Page_Order(bits.log2(end - start))
-	return min(start_align, len_align, PAGE_ALLOCATOR_MAX_ORDER - 1)
-}
-
-@(require_results)
-page_allocator_alloc :: proc "contextless" (order: Page_Order) -> (block: ^Page, ok: bool) {
-	// Try to get a suitable block by splitting a higher-order block.
-	if page_allocator.free_blocks[order] == nil {
-		return _page_allocator_split(order)
-	}
-
-	return _page_allocator_remove_head_block(order), true
-}
-
-@(require_results)
 _page_allocator_split :: proc "contextless" (order: Page_Order) -> (block: ^Page, ok: bool) {
 	split_order: Page_Order
 
 	// Search for the lowest higher-order block available.
-	for i in order + 1 ..< len(page_allocator.free_blocks) {
-		if page_allocator.free_blocks[i] != nil {
+	for i in order + 1 ..< len(page_allocator.free) {
+		if !list_is_empty(&page_allocator.free[i]) {
 			split_order = Page_Order(i)
 			break
 		}
@@ -157,13 +151,13 @@ _page_allocator_split :: proc "contextless" (order: Page_Order) -> (block: ^Page
 	}
 
 	// Remove the higher-order block that needs to be split.
-	block = _page_allocator_remove_head_block(split_order)
+	block = _page_allocator_remove_block_of_order(split_order)
 
 	for {
 		target_order := split_order - 1
 
 		// Add the buddy block to the target order free list.
-		buddy := _page_allocator_get_buddy(block, target_order)
+		buddy := _page_get_buddy(block, target_order)
 		_page_allocator_add_block(buddy, target_order)
 
 		// Exit when the block has the correct size.
@@ -179,39 +173,48 @@ _page_allocator_split :: proc "contextless" (order: Page_Order) -> (block: ^Page
 }
 
 _page_allocator_add_block :: proc "contextless" (block: ^Page, order: Page_Order) {
-	head_block := &page_allocator.free_blocks[order]
-
-	block.next_free_block = head_block^
-	block.prev_free_block = nil
+	list_push_back(&page_allocator.free[order], &block.node)
 	block.order = order
+	block.flags -= {.Used}
+}
 
-	if head_block^ != nil {
-		head_block^.prev_free_block = block
-	}
-
-	head_block^ = block
+_page_allocator_remove_block :: proc "contextless" (block: ^Page) {
+	list_remove(&block.node)
+	block.flags += {.Used}
 }
 
 @(require_results)
-_page_allocator_remove_head_block :: proc "contextless" (order: Page_Order) -> (block: ^Page) {
-	block = page_allocator.free_blocks[order]
-	next_block := block.next_free_block
-
-	if next_block != nil {
-		next_block.prev_free_block = nil
-	}
-
-	page_allocator.free_blocks[order] = next_block
-	block.next_free_block = nil
+_page_allocator_remove_block_of_order :: proc "contextless" (order: Page_Order) -> ^Page {
+	block := _page_from_node(page_allocator.free[order].next)
+	_page_allocator_remove_block(block)
 	return block
 }
 
 @(require_results)
-_page_allocator_get_buddy :: #force_inline proc "contextless" (
-	block: ^Page,
-	buddy_order: Page_Order,
-) -> (
-	buddy: ^Page,
-) {
-	return &([^]Page)(block)[1 << buddy_order]
+_page_from_node :: proc "contextless" (node: ^List_Node) -> ^Page {
+	return container_of(node, Page, "node")
+}
+
+@(require_results)
+_page_get_buddy :: proc "contextless" (block: ^Page, buddy_order: Page_Order) -> ^Page {
+	block_number := _page_number_from_page(block)
+
+	// (1 << buddy_order) is the bit that determines in which half of the parent
+	// block of the higher order we are in. The line below flips that bit,
+	// giving us the number of the buddy block of the correct order.
+	buddy_number := block_number ~ (1 << buddy_order)
+
+	return &pages[buddy_number]
+}
+
+@(require_results)
+_page_number_from_page :: proc "contextless" (page: ^Page) -> Page_Number {
+	return Page_Number((uintptr(page) - uintptr(&pages[0])) / size_of(Page))
+}
+
+@(require_results)
+_page_order_from_range :: proc "contextless" (start, end: Page_Number) -> Page_Order {
+	start_align := Page_Order(bits.count_trailing_zeros(start))
+	len_align := Page_Order(bits.log2(end - start))
+	return min(start_align, len_align, PAGE_ALLOCATOR_MAX_ORDER - 1)
 }
