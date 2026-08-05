@@ -14,7 +14,7 @@ pages: []Page
 page_allocator: Page_Allocator
 
 Page_Allocator :: struct {
-	free: [PAGE_ALLOCATOR_MAX_ORDER]List_Node,
+	free: [PAGE_ALLOCATOR_MAX_ORDER]List_Head,
 }
 
 Page :: struct {
