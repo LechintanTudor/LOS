@@ -30,7 +30,7 @@ Page_Order :: distinct u32
 Page_Flags :: bit_set[Page_Flags_Bits;u32]
 
 Page_Flags_Bits :: enum u32 {
-	Used,
+	Free_Head,
 }
 
 @(require_results)
@@ -115,6 +115,16 @@ memory_init :: proc() -> (ok: bool) {
 }
 
 @(require_results)
+page_align_forward :: #force_inline proc "contextless" (address: uintptr) -> uintptr {
+	return (address + PAGE_MASK) & ~uintptr(PAGE_MASK)
+}
+
+@(require_results)
+page_align_backward :: #force_inline proc "contextless" (address: uintptr) -> uintptr {
+	return address & ~uintptr(PAGE_MASK)
+}
+
+@(require_results)
 page_allocator_alloc :: proc "contextless" (order: Page_Order) -> (block: ^Page, ok: bool) {
 	// Try to get a suitable block by splitting a higher-order block.
 	if list_is_empty(&page_allocator.free[order]) {
@@ -124,14 +134,31 @@ page_allocator_alloc :: proc "contextless" (order: Page_Order) -> (block: ^Page,
 	return _page_allocator_remove_block_of_order(order), true
 }
 
-@(require_results)
-page_align_forward :: #force_inline proc "contextless" (address: uintptr) -> uintptr {
-	return (address + PAGE_MASK) & ~uintptr(PAGE_MASK)
-}
+page_allocator_free :: proc "contextless" (block: ^Page) {
+	block := block
+	order := block.order
 
-@(require_results)
-page_align_backward :: #force_inline proc "contextless" (address: uintptr) -> uintptr {
-	return address & ~uintptr(PAGE_MASK)
+	for {
+		buddy := _page_get_buddy(block, order)
+
+		if .Free_Head not_in buddy.flags || buddy.order != order {
+			break
+		}
+
+		_page_allocator_remove_block(buddy)
+
+		if uintptr(buddy) < uintptr(block) {
+			block = buddy
+		}
+
+		order += 1
+
+		if order == PAGE_ALLOCATOR_MAX_ORDER {
+			break
+		}
+	}
+
+	_page_allocator_add_block(block, order)
 }
 
 @(require_results)
@@ -175,12 +202,12 @@ _page_allocator_split :: proc "contextless" (order: Page_Order) -> (block: ^Page
 _page_allocator_add_block :: proc "contextless" (block: ^Page, order: Page_Order) {
 	list_push_back(&page_allocator.free[order], &block.node)
 	block.order = order
-	block.flags -= {.Used}
+	block.flags += {.Free_Head}
 }
 
 _page_allocator_remove_block :: proc "contextless" (block: ^Page) {
 	list_remove(&block.node)
-	block.flags += {.Used}
+	block.flags -= {.Free_Head}
 }
 
 @(require_results)

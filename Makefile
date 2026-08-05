@@ -51,7 +51,7 @@ ODIN_SRC = \
 	src_odin/cpu.odin \
 	src_odin/logger.odin \
 	src_odin/main.odin \
-	src_odin/memory.odin
+	src_odin/memory_page.odin
 
 #
 # Phony
