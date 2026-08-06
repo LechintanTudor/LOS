@@ -44,14 +44,16 @@ ODIN_BUILD_FLAGS = \
 # Source
 #
 
-ASM_SRC = src_asm/cpu.S
+SRC_DIR = src
+
+ASM_SRC = $(SRC_DIR)/asm/cpu.S
 
 ODIN_SRC = \
-	src_odin/boot.odin \
-	src_odin/cpu.odin \
-	src_odin/logger.odin \
-	src_odin/main.odin \
-	src_odin/memory_page.odin
+	$(SRC_DIR)/boot.odin \
+	$(SRC_DIR)/cpu.odin \
+	$(SRC_DIR)/logger.odin \
+	$(SRC_DIR)/main.odin \
+	$(SRC_DIR)/memory_page.odin
 
 #
 # Phony
@@ -69,10 +71,10 @@ run: all
 		-debugcon stdio
 
 check:
-	odin check src_odin -vet $(ODIN_CHECK_FLAGS)
+	odin check "$(SRC_DIR)" -vet $(ODIN_CHECK_FLAGS)
 
 fmt:
-	odinfmt -w src_odin
+	odinfmt -w "$(SRC_DIR)"
 
 clean:
 	rm -rf "$(BUILD_DIR)" "$(RUN_DIR)"
@@ -107,7 +109,7 @@ $(BUILD_ASM_OBJ): $(ASM_SRC)
 
 $(BUILD_KERNEL_OBJ): $(ODIN_SRC)
 	mkdir -p "$(BUILD_DIR)"
-	odin build src_odin -out:"$@" $(ODIN_BUILD_FLAGS)
+	odin build $(SRC_DIR) -out:"$@" $(ODIN_BUILD_FLAGS)
 
 	# Temporary fix for Odin compiler bug.
 	mv build/kernel.obj build/kernel.o
