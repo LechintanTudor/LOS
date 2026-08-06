@@ -17,8 +17,6 @@ Page :: struct {
 	flags: Page_Flags,
 }
 
-Page_Number :: distinct u64
-
 Page_Order :: distinct u32
 
 Page_Flags :: bit_set[Page_Flags_Bits;u32]
@@ -44,11 +42,11 @@ page_init :: proc() -> (ok: bool) {
 	}
 
 	pages: []Page
-	pages_start, pages_end: Page_Number
+	pages_start, pages_end: u64
 
 	{ 	// Find a suitable place for the pages array.
 		best_entry: ^limine.memmap_entry
-		pages_len := Page_Number(last_physical_address / PAGE_SIZE)
+		pages_len := last_physical_address / PAGE_SIZE
 		pages_size := u64(pages_len) * size_of(Page)
 
 		// Find the largest
@@ -72,12 +70,10 @@ page_init :: proc() -> (ok: bool) {
 		pages = ([^]Page)(pages_address)[:pages_len]
 
 		start_ptr := raw_data(pages)
-		pages_start = Page_Number(
-			page_align_backward((uintptr(start_ptr) - hhdm_offset)) / PAGE_SIZE,
-		)
+		pages_start = u64(page_align_backward((uintptr(start_ptr) - hhdm_offset)) / PAGE_SIZE)
 
 		end_ptr := mem.ptr_offset(start_ptr, pages_len)
-		pages_end = Page_Number(page_align_forward((uintptr(end_ptr) - hhdm_offset)) / PAGE_SIZE)
+		pages_end = u64(page_align_forward((uintptr(end_ptr) - hhdm_offset)) / PAGE_SIZE)
 	}
 
 	// Add the usable pages to the page allocator.
@@ -88,8 +84,8 @@ page_init :: proc() -> (ok: bool) {
 			continue
 		}
 
-		start := Page_Number(entry.base / PAGE_SIZE)
-		end := Page_Number((entry.base + entry.length) / PAGE_SIZE)
+		start := entry.base / PAGE_SIZE
+		end := (entry.base + entry.length) / PAGE_SIZE
 
 		// Skip the pages that are used to store the page metadata.
 		if end == pages_end {
@@ -103,7 +99,7 @@ page_init :: proc() -> (ok: bool) {
 			order := min(start_align, len_align, PAGE_ALLOCATOR_MAX_ORDER - 1)
 
 			page_allocator_add_block(&page_allocator, &pages[start], order)
-			start += Page_Number(1) << order
+			start += 1 << order
 		}
 	}
 
