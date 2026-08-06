@@ -53,7 +53,8 @@ ODIN_SRC = \
 	$(SRC_DIR)/cpu.odin \
 	$(SRC_DIR)/logger.odin \
 	$(SRC_DIR)/main.odin \
-	$(SRC_DIR)/memory_page.odin
+	$(SRC_DIR)/memory_page.odin \
+	$(SRC_DIR)/memory_page_allocator.odin
 
 #
 # Phony
