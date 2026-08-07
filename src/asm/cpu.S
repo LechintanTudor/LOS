@@ -1,8 +1,11 @@
+#define IA32_EFER 0xC0000080
+#define EFER_NXE (1 << 11)
+
 .section .text
 
-.global cpu_enable_sse
-.type cpu_enable_sse @function
-cpu_enable_sse:
+.global cpu_init
+.type cpu_init @function
+cpu_init:
     # Bit 1: Enable Monitor co-processor.
     # Bit 2: Disable x87 FPU Emulation.
     movq %cr0, %rax
@@ -15,6 +18,12 @@ cpu_enable_sse:
     movq %cr4, %rax
     orq $((1 << 9) | (1 << 10)), %rax
     movq %rax, %cr4
+
+    # Bit 11: Enable the Execute Disable bit.
+    movl $IA32_EFER, %ecx
+    rdmsr
+    orl $EFER_NXE, %eax
+    wrmsr
 
     ret
 

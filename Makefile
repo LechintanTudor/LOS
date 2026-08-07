@@ -53,6 +53,8 @@ ODIN_SRC = \
 	$(SRC_DIR)/cpu.odin \
 	$(SRC_DIR)/logger.odin \
 	$(SRC_DIR)/main.odin \
+	$(SRC_DIR)/memory.odin \
+	$(SRC_DIR)/memory_address_amd64.odin \
 	$(SRC_DIR)/memory_page.odin \
 	$(SRC_DIR)/memory_page_allocator.odin
 
@@ -106,7 +108,7 @@ $(EFI_BOOT_LOADER): extern/limine/bin/BOOTX64.EFI
 
 $(BUILD_ASM_OBJ): $(ASM_SRC)
 	mkdir -p "$(BUILD_DIR)"
-	as -o "$@" $(ASM_SRC)
+	clang -c -o "$@" $(ASM_SRC)
 
 $(BUILD_KERNEL_OBJ): $(ODIN_SRC)
 	mkdir -p "$(BUILD_DIR)"

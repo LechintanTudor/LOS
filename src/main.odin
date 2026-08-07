@@ -6,7 +6,7 @@ import "core:mem"
 
 @(export)
 kernel_main :: proc "contextless" () {
-	cpu_enable_sse()
+	cpu_init()
 
 	arena_buffer: [1024]byte
 	arena: mem.Arena
