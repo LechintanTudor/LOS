@@ -118,8 +118,8 @@ $(BUILD_KERNEL_OBJ): $(ODIN_SRC)
 	mv build/kernel.obj build/kernel.o
 
 $(BUILD_KERNEL): $(BUILD_KERNEL_OBJ) $(BUILD_ASM_OBJ) config/link.ld
-	ld $(BUILD_KERNEL_OBJ) $(BUILD_ASM_OBJ) \
+	ld.lld $(BUILD_KERNEL_OBJ) $(BUILD_ASM_OBJ) \
 	    -o "$@" \
-	    -nostdlib \
-	    -static \
-	    -T config/link.ld
+	    --nostdlib \
+	    --static \
+	    --script config/link.ld
