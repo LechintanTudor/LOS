@@ -7,6 +7,12 @@ import "extern:limine"
 @(private = "file")
 volatile_load :: intrinsics.volatile_load
 
+Boot_Info :: struct {
+	hhdm_base:      uintptr,
+	memmap_entries: []^limine.memmap_entry,
+	framebuffers:   []^limine.framebuffer,
+}
+
 @(require, link_section = ".limine_requests_start")
 _boot_requests_start_marker := limine.REQUESTS_START_MARKER
 
@@ -31,43 +37,41 @@ _boot_memmap_request := limine.memmap_request {
 	id = limine.MEMMAP_REQUEST_ID,
 }
 
-boot_validate :: proc() -> (ok: bool) {
-	if volatile_load(&_boot_framebuffer_request.response) == nil {
-		log.error("Failed to set up framebuffer")
-		return
+@(require_results)
+boot_init :: proc() -> (info: Boot_Info, ok: bool) {
+	{ 	// Frambuffer
+		response := volatile_load(&_boot_framebuffer_request.response)
+
+		if response == nil {
+			log.error("Failed to set up framebuffers")
+			return {}, false
+		}
+
+		info.framebuffers = response.framebuffers[:response.framebuffer_count]
 	}
 
-	if volatile_load(&_boot_hhdm_request.response) == nil {
-		log.error("Failed to set up hhdm")
-		return
+	{ 	// HHDM
+		response := volatile_load(&_boot_hhdm_request.response)
+
+		if response == nil {
+			log.error("Failed to set up hhdm")
+			return {}, false
+
+		}
+
+		info.hhdm_base = uintptr(response.offset)
 	}
 
-	if volatile_load(&_boot_memmap_request.response) == nil {
-		log.error("Failed to query memmap")
-		return
+	{ 	// Memmap
+		response := volatile_load(&_boot_memmap_request.response)
+
+		if response == nil {
+			log.error("Failed to get memmap entries")
+			return {}, false
+		}
+
+		info.memmap_entries = response.entries[:response.entry_count]
 	}
 
-	ok = true
-	return
-}
-
-@(require_results)
-boot_get_framebuffers :: proc "contextless" () -> []^limine.framebuffer {
-	response := volatile_load(&_boot_framebuffer_request.response)
-	return response.framebuffers[:response.framebuffer_count]
-}
-
-@(require_results)
-boot_get_hhdm_offset :: proc "contextless" () -> uintptr {
-	response := volatile_load(&_boot_hhdm_request.response)
-	return uintptr(response.offset)
-}
-
-// From Limine's protocol specification:
-// - The entries are guaranteed to be sorted by base address, lowest to highest.
-// - Usable entries are guaranteed to be 4096 byte aligned for both base and length.
-@(require_results)
-boot_get_memmap_entries :: proc "contextless" () -> []^limine.memmap_entry {
-	response := volatile_load(&_boot_memmap_request.response)
-	return response.entries[:response.entry_count]
+	return info, true
 }

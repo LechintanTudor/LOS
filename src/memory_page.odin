@@ -8,7 +8,6 @@ import "extern:limine"
 PAGE_SIZE :: 4096
 PAGE_MASK :: PAGE_SIZE - 1
 
-hhdm_offset: uintptr
 page_allocator: Page_Allocator
 
 Page :: struct {
@@ -26,10 +25,10 @@ Page_Flags_Bits :: enum u32 {
 }
 
 @(require_results)
-page_init :: proc() -> (ok: bool) {
-	hhdm_offset = boot_get_hhdm_offset()
+page_init :: proc(boot_info: Boot_Info) -> (ok: bool) {
+	hhdm_base = boot_info.hhdm_base
 
-	memmap_entries := boot_get_memmap_entries()
+	memmap_entries := boot_info.memmap_entries
 	last_physical_address: uintptr
 
 	// The usable regions are sorted by base address and page-aligned.
@@ -66,14 +65,14 @@ page_init :: proc() -> (ok: bool) {
 		}
 
 		// Store the pages at the end of the largest region.
-		pages_address := hhdm_offset + uintptr(best_entry.base + best_entry.length - pages_size)
+		pages_address := hhdm_base + uintptr(best_entry.base + best_entry.length - pages_size)
 		pages = ([^]Page)(pages_address)[:pages_len]
 
 		start_ptr := raw_data(pages)
-		pages_start = u64(page_align_backward((uintptr(start_ptr) - hhdm_offset)) / PAGE_SIZE)
+		pages_start = u64(page_align_backward((uintptr(start_ptr) - hhdm_base)) / PAGE_SIZE)
 
 		end_ptr := mem.ptr_offset(start_ptr, pages_len)
-		pages_end = u64(page_align_forward((uintptr(end_ptr) - hhdm_offset)) / PAGE_SIZE)
+		pages_end = u64(page_align_forward((uintptr(end_ptr) - hhdm_base)) / PAGE_SIZE)
 	}
 
 	// Add the usable pages to the page allocator.

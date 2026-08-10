@@ -46,11 +46,11 @@ ODIN_BUILD_FLAGS = \
 
 SRC_DIR = src
 
-ASM_SRC = $(SRC_DIR)/asm/cpu.S
+ASM_SRC = $(SRC_DIR)/asm/cpu_amd64.S
 
 ODIN_SRC = \
 	$(SRC_DIR)/boot.odin \
-	$(SRC_DIR)/cpu.odin \
+	$(SRC_DIR)/cpu_amd64.odin \
 	$(SRC_DIR)/logger.odin \
 	$(SRC_DIR)/main.odin \
 	$(SRC_DIR)/memory.odin \
@@ -113,9 +113,6 @@ $(BUILD_ASM_OBJ): $(ASM_SRC)
 $(BUILD_KERNEL_OBJ): $(ODIN_SRC)
 	mkdir -p "$(BUILD_DIR)"
 	odin build $(SRC_DIR) -out:"$@" $(ODIN_BUILD_FLAGS)
-
-	# Temporary fix for Odin compiler bug.
-	mv build/kernel.obj build/kernel.o
 
 $(BUILD_KERNEL): $(BUILD_KERNEL_OBJ) $(BUILD_ASM_OBJ) config/link.ld
 	ld.lld $(BUILD_KERNEL_OBJ) $(BUILD_ASM_OBJ) \

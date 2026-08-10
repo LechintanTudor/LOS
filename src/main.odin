@@ -21,15 +21,17 @@ kernel_main :: proc "contextless" () {
 
 	log.info("Booting...")
 
-	if !boot_validate() {
+	boot_info, boot_ok := boot_init()
+
+	if !boot_ok {
 		cpu_halt_forever()
 	}
 
-	if !page_init() {
+	if !page_init(boot_info) {
 		cpu_halt_forever()
 	}
 
-	framebuffer := boot_get_framebuffers()[0]
+	framebuffer := boot_info.framebuffers[0]
 	pixels := ([^]u32)(framebuffer.address)
 
 	for y in 0 ..< framebuffer.height {

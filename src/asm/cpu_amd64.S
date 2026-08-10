@@ -27,6 +27,18 @@ cpu_init:
 
     ret
 
+.global cpu_get_cr3
+.type cpu_get_cr3 @function
+cpu_get_cr3:
+    movq %cr3, %rax
+    ret
+
+.global cpu_set_cr3
+.type cpu_set_cr3 @function
+cpu_set_cr3:
+    movq %rdi, %cr3
+    ret
+
 .global cpu_port_write_byte
 .type cpu_port_write_byte @function
 cpu_port_write_byte:
