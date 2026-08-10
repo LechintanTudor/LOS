@@ -1,6 +1,5 @@
 package kernel
 
-import "core:log"
 import "core:math/bits"
 import "core:mem"
 import "extern:limine"
@@ -25,7 +24,7 @@ Page_Flags_Bits :: enum u32 {
 }
 
 @(require_results)
-page_init :: proc(boot_info: Boot_Info) -> (ok: bool) {
+page_init :: proc "contextless" (boot_info: Boot_Info) -> (ok: bool) {
 	hhdm_base = boot_info.hhdm_base
 
 	memmap_entries := boot_info.memmap_entries
@@ -60,7 +59,7 @@ page_init :: proc(boot_info: Boot_Info) -> (ok: bool) {
 		}
 
 		if best_entry == nil {
-			log.error("Failed to find a suitable region for the pages array")
+			log_error("Failed to find a suitable region for the pages array")
 			return
 		}
 

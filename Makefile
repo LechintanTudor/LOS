@@ -51,7 +51,7 @@ ASM_SRC = $(SRC_DIR)/asm/cpu_amd64.S
 ODIN_SRC = \
 	$(SRC_DIR)/boot.odin \
 	$(SRC_DIR)/cpu_amd64.odin \
-	$(SRC_DIR)/logger.odin \
+	$(SRC_DIR)/log.odin \
 	$(SRC_DIR)/main.odin \
 	$(SRC_DIR)/memory.odin \
 	$(SRC_DIR)/memory_address_amd64.odin \

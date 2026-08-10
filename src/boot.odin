@@ -1,7 +1,6 @@
 package kernel
 
 import "base:intrinsics"
-import "core:log"
 import "extern:limine"
 
 @(private = "file")
@@ -38,12 +37,12 @@ _boot_memmap_request := limine.memmap_request {
 }
 
 @(require_results)
-boot_init :: proc() -> (info: Boot_Info, ok: bool) {
+boot_init :: proc "contextless" () -> (info: Boot_Info, ok: bool) {
 	{ 	// Frambuffer
 		response := volatile_load(&_boot_framebuffer_request.response)
 
 		if response == nil {
-			log.error("Failed to set up framebuffers")
+			log_error("Failed to set up framebuffers")
 			return {}, false
 		}
 
@@ -54,7 +53,7 @@ boot_init :: proc() -> (info: Boot_Info, ok: bool) {
 		response := volatile_load(&_boot_hhdm_request.response)
 
 		if response == nil {
-			log.error("Failed to set up hhdm")
+			log_error("Failed to set up hhdm")
 			return {}, false
 
 		}
@@ -66,7 +65,7 @@ boot_init :: proc() -> (info: Boot_Info, ok: bool) {
 		response := volatile_load(&_boot_memmap_request.response)
 
 		if response == nil {
-			log.error("Failed to get memmap entries")
+			log_error("Failed to get memmap entries")
 			return {}, false
 		}
 

@@ -1,25 +1,12 @@
 package kernel
 
 import "base:intrinsics"
-import "core:log"
-import "core:mem"
 
 @(export)
 kernel_main :: proc "contextless" () {
 	cpu_init()
 
-	arena_buffer: [1024]byte
-	arena: mem.Arena
-
-	context = {}
-	mem.arena_init(&arena, arena_buffer[:])
-
-	context = {
-		temp_allocator = mem.arena_allocator(&arena),
-		logger         = logger_create(),
-	}
-
-	log.info("Booting...")
+	log_infof("Booting...")
 
 	boot_info, boot_ok := boot_init()
 
