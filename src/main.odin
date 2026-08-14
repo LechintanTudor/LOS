@@ -14,7 +14,7 @@ kernel_main :: proc "contextless" () {
 		cpu_halt_forever()
 	}
 
-	if !page_init(boot_info) {
+	if !vm_init(boot_info) {
 		cpu_halt_forever()
 	}
 

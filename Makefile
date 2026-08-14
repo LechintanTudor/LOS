@@ -54,7 +54,7 @@ ODIN_SRC = \
 	$(SRC_DIR)/log.odin \
 	$(SRC_DIR)/main.odin \
 	$(SRC_DIR)/memory.odin \
-	$(SRC_DIR)/memory_address_amd64.odin \
+	$(SRC_DIR)/memory_amd64.odin \
 	$(SRC_DIR)/memory_page.odin \
 	$(SRC_DIR)/memory_page_allocator.odin
 

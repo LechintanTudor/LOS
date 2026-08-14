@@ -7,7 +7,7 @@ import "extern:limine"
 volatile_load :: intrinsics.volatile_load
 
 Boot_Info :: struct {
-	hhdm_base:      uintptr,
+	hhdm:           uintptr,
 	memmap_entries: []^limine.memmap_entry,
 	framebuffers:   []^limine.framebuffer,
 }
@@ -58,7 +58,7 @@ boot_init :: proc "contextless" () -> (info: Boot_Info, ok: bool) {
 
 		}
 
-		info.hhdm_base = uintptr(response.offset)
+		info.hhdm = uintptr(response.offset)
 	}
 
 	{ 	// Memmap
