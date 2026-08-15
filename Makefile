@@ -73,6 +73,7 @@ run: all
 		-drive if=pflash,format=raw,readonly=on,file=ovmf/OVMF_CODE.4m.fd \
 		-drive if=pflash,format=raw,file="$(RUN_OVMF_VARS)" \
 		-drive format=raw,file=fat:rw:"$(BOOT_DIR)" \
+		-smp 4 \
 		-debugcon stdio
 
 check:

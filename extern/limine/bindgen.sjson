@@ -2,11 +2,16 @@ inputs = ["src"]
 output_folder = "."
 package_name = "limine"
 
-remove = ["LIMINE_H"]
 remove_type_prefix = "limine_"
 remove_macro_prefix = "LIMINE_"
 
 struct_field_overrides = {
-    "limine_memmap_response.entries" = "[^]"
     "limine_framebuffer_response.framebuffers" = "[^]"
+    "limine_memmap_response.entries" = "[^]"
+    "limine_mp_response.cpus" = "[^]"
 }
+
+remove = [
+    "LIMINE_H"
+    "limine_mp_info"
+]

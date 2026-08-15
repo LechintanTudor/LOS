@@ -48,3 +48,18 @@ MEMMAP_REQUEST_ID :: [4]u64 {
 	0x67cf3d9d378a806f,
 	0xe304acdfc50c3c62,
 }
+
+MP_REQUEST_ID :: [4]u64 {
+	COMMON_MAGIC[0],
+	COMMON_MAGIC[1],
+	0x95a67b819a1b857e,
+	0xa0b61b723b6a73e0,
+}
+
+mp_info :: struct {
+	processor_id:   u32,
+	lapic_id:       u32,
+	reserved:       u64,
+	goto_address:   goto_address,
+	extra_argument: u64,
+}

@@ -225,14 +225,12 @@ goto_address :: proc "c" (^mp_info)
 
 MP_RESPONSE_X86_64_X2APIC :: (1<<0)
 
-mp_info :: struct {}
-
 mp_response :: struct {
 	revision:     u64,
 	flags:        u32,
 	bsp_lapic_id: u32,
 	cpu_count:    u64,
-	cpus:         ^^mp_info,
+	cpus:         [^]^mp_info,
 }
 
 MP_REQUEST_X86_64_X2APIC :: (1<<0)
@@ -513,4 +511,19 @@ MEMMAP_REQUEST_ID :: [4]u64 {
 	COMMON_MAGIC[1],
 	0x67cf3d9d378a806f,
 	0xe304acdfc50c3c62,
+}
+
+MP_REQUEST_ID :: [4]u64 {
+	COMMON_MAGIC[0],
+	COMMON_MAGIC[1],
+	0x95a67b819a1b857e,
+	0xa0b61b723b6a73e0,
+}
+
+mp_info :: struct {
+	processor_id:   u32,
+	lapic_id:       u32,
+	reserved:       u64,
+	goto_address:   goto_address,
+	extra_argument: u64,
 }
