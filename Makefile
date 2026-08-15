@@ -51,12 +51,14 @@ ASM_SRC = $(SRC_DIR)/asm/cpu_amd64.S
 ODIN_SRC = \
 	$(SRC_DIR)/boot.odin \
 	$(SRC_DIR)/cpu_amd64.odin \
+	$(SRC_DIR)/error.odin \
 	$(SRC_DIR)/log.odin \
 	$(SRC_DIR)/main.odin \
 	$(SRC_DIR)/memory.odin \
 	$(SRC_DIR)/memory_amd64.odin \
 	$(SRC_DIR)/memory_page.odin \
-	$(SRC_DIR)/memory_page_allocator.odin
+	$(SRC_DIR)/memory_page_allocator.odin \
+	$(SRC_DIR)/slab.odin
 
 #
 # Phony

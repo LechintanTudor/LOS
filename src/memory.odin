@@ -8,8 +8,8 @@ VM_Physical_Address :: distinct uintptr
 VM_Virtual_Address :: distinct uintptr
 
 VM_Address_Space :: struct {
-	table:  ^VM_AMD64_Page_Table,
-	ranges: [12]VM_Address_Range,
+	page_table:     ^VM_AMD64_Page_Table,
+	address_ranges: [12]VM_Address_Range,
 }
 
 VM_Address_Range :: struct {
@@ -42,7 +42,7 @@ vm_init :: proc "contextless" (boot_info: Boot_Info) -> (ok: bool) {
 @(require_results)
 vm_address_space_create :: proc "contextless" () -> (address_space: VM_Address_Space) {
 	copy(
-		dst = address_space.table[VM_AMD64_PAGE_TABLE_HALF_LEN:],
+		dst = address_space.page_table[VM_AMD64_PAGE_TABLE_HALF_LEN:],
 		src = vm_kernel_page_table[VM_AMD64_PAGE_TABLE_HALF_LEN:],
 	)
 
