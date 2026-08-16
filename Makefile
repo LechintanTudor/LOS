@@ -52,13 +52,15 @@ ODIN_SRC = \
 	$(SRC_DIR)/boot.odin \
 	$(SRC_DIR)/cpu_amd64.odin \
 	$(SRC_DIR)/error.odin \
+	$(SRC_DIR)/int_amd64.odin \
+	$(SRC_DIR)/list.odin \
 	$(SRC_DIR)/log.odin \
 	$(SRC_DIR)/main.odin \
-	$(SRC_DIR)/memory.odin \
-	$(SRC_DIR)/memory_amd64.odin \
 	$(SRC_DIR)/memory_page.odin \
 	$(SRC_DIR)/memory_page_allocator.odin \
-	$(SRC_DIR)/slab.odin
+	$(SRC_DIR)/slab.odin \
+	$(SRC_DIR)/vm.odin \
+	$(SRC_DIR)/vm_amd64.odin
 
 #
 # Phony
