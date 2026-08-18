@@ -13,10 +13,9 @@ cpu_init:
     andq $~(1 << 2), %rax
     movq %rax, %cr0
 
-    # Bit 9:  Enable the FXSAVE and FXRSTOR instructions.
-    # Bit 10: Enable Unmasked SIMD Floating-Point Exceptions.
+    # Bit 9: Enable the FXSAVE and FXRSTOR instructions.
     movq %cr4, %rax
-    orq $((1 << 9) | (1 << 10)), %rax
+    orq $(1 << 9), %rax
     movq %rax, %cr4
 
     # Bit 11: Enable the Execute Disable bit.

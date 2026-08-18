@@ -31,14 +31,18 @@ BUILD_KERNEL = $(BUILD_DIR)/kernel.elf
 ODIN_CHECK_FLAGS = \
 	-collection:extern=extern \
 	-target:freestanding_amd64_sysv \
+	-bedrock \
 	-no-entry-point \
 	-no-thread-local
 
 ODIN_BUILD_FLAGS = \
 	$(ODIN_CHECK_FLAGS) \
+	-microarch:x86-64 \
+	-target-features:-sse,-sse2,-x87 \
+	-disable-red-zone \
+	-no-crt \
 	-build-mode:obj \
-	-use-single-module \
-	-no-crt
+	-use-single-module
 
 #
 # Source
@@ -49,6 +53,7 @@ SRC_DIR = src
 ASM_SRC = $(SRC_DIR)/asm/cpu_amd64.S
 
 ODIN_SRC = \
+	$(SRC_DIR)/bits.odin \
 	$(SRC_DIR)/boot.odin \
 	$(SRC_DIR)/cpu_amd64.odin \
 	$(SRC_DIR)/error.odin \
@@ -56,11 +61,11 @@ ODIN_SRC = \
 	$(SRC_DIR)/list.odin \
 	$(SRC_DIR)/log.odin \
 	$(SRC_DIR)/main.odin \
-	$(SRC_DIR)/memory_page.odin \
 	$(SRC_DIR)/memory_page_allocator.odin \
+	$(SRC_DIR)/memory_page.odin \
 	$(SRC_DIR)/slab.odin \
-	$(SRC_DIR)/vm.odin \
-	$(SRC_DIR)/vm_amd64.odin
+	$(SRC_DIR)/vm_amd64.odin \
+	$(SRC_DIR)/vm.odin
 
 #
 # Phony

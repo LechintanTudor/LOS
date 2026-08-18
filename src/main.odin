@@ -6,7 +6,7 @@ import "base:intrinsics"
 kernel_main :: proc "contextless" () {
 	cpu_init()
 
-	log_infof("Booting...")
+	log_info("Booting...")
 
 	boot_info, boot_ok := boot_init()
 
@@ -30,5 +30,20 @@ kernel_main :: proc "contextless" () {
 		}
 	}
 
+	cpu_halt_forever()
+}
+
+@(private = "file", require, link_name = "__truncdfsf2")
+_unused_0 :: proc "sysv" () -> ! {
+	cpu_halt_forever()
+}
+
+@(private = "file", require, link_name = "__mulsf3")
+_unused_1 :: proc "sysv" () -> ! {
+	cpu_halt_forever()
+}
+
+@(private = "file", require, link_name = "__gesf2")
+_unused_2 :: proc "sysv" () -> ! {
 	cpu_halt_forever()
 }

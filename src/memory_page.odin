@@ -1,7 +1,6 @@
 package kernel
 
-import "core:math/bits"
-import "core:mem"
+import "base:intrinsics"
 import "extern:limine"
 
 PAGE_SIZE :: 4096
@@ -68,7 +67,7 @@ page_init :: proc "contextless" (boot_info: Boot_Info) -> (ok: bool) {
 		start_ptr := raw_data(pages)
 		pages_start = u64(page_align_backward((uintptr(start_ptr) - vm_hhdm)) / PAGE_SIZE)
 
-		end_ptr := mem.ptr_offset(start_ptr, pages_len)
+		end_ptr := intrinsics.ptr_offset(start_ptr, pages_len)
 		pages_end = u64(page_align_forward((uintptr(end_ptr) - vm_hhdm)) / PAGE_SIZE)
 	}
 
@@ -90,8 +89,8 @@ page_init :: proc "contextless" (boot_info: Boot_Info) -> (ok: bool) {
 
 		for start < end {
 			// Compute the page order based on the start and end page numbers.
-			start_align := Page_Order(bits.count_trailing_zeros(start))
-			len_align := Page_Order(bits.log2(end - start))
+			start_align := Page_Order(intrinsics.count_trailing_zeros(start))
+			len_align := Page_Order(bits_log2(end - start))
 			order := min(start_align, len_align, PAGE_ALLOCATOR_MAX_ORDER - 1)
 
 			page_allocator_add_block(&page_allocator, &pages[start], order)

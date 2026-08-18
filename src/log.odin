@@ -1,8 +1,5 @@
 package kernel
 
-import "core:fmt"
-import "core:mem"
-
 @(rodata)
 Log_Level_Headers := [Log_Level]string {
 	.Debug = "DEBUG",
@@ -20,83 +17,26 @@ Log_Level :: enum {
 	Fatal,
 }
 
-log_info :: proc "contextless" (args: ..any, location := #caller_location) {
-	log(.Info, ..args, location = location)
+log_info :: proc "contextless" (message: string, location := #caller_location) {
+	_log(.Info, message, location)
 }
 
-log_infof :: proc "contextless" (fmt_str: string, args: ..any, location := #caller_location) {
-	logf(.Info, fmt_str, ..args, location = location)
+log_error :: proc "contextless" (message: string, location := #caller_location) {
+	_log(.Error, message, location)
 }
 
-log_error :: proc "contextless" (args: ..any, location := #caller_location) {
-	log(.Error, ..args, location = location)
-}
-
-log_errorf :: proc "contextless" (fmt_str: string, args: ..any, location := #caller_location) {
-	logf(.Error, fmt_str, ..args, location = location)
-}
-
-log :: proc "contextless" (
-	level: Log_Level,
-	args: ..any,
-	sep: string = " ",
-	location := #caller_location,
-) {
-	arena_memory: [256]byte = ---
-	arena: mem.Arena
-
-	context = {}
-	mem.arena_init(&arena, arena_memory[:])
-	context.temp_allocator = mem.arena_allocator(&arena)
-
-	text := fmt.tprint(..args, sep = sep)
-	_log(level, text, location)
-}
-
-logf :: proc "contextless" (
-	level: Log_Level,
-	fmt_str: string,
-	args: ..any,
-	location := #caller_location,
-) {
-	arena_memory: [256]byte = ---
-	arena: mem.Arena
-
-	context = {}
-	mem.arena_init(&arena, arena_memory[:])
-	context.temp_allocator = mem.arena_allocator(&arena)
-
-	text := fmt.tprintf(fmt_str, ..args)
-	_log(level, text, location)
-}
-
-_log :: proc "contextless" (level: Log_Level, text: string, location := #caller_location) {
-	QEMU_DEBUG_PORT :: 0xe9
-
-	arena_memory: [256]byte = ---
-	arena: mem.Arena
-
-	context = {}
-	mem.arena_init(&arena, arena_memory[:])
-	context.temp_allocator = mem.arena_allocator(&arena)
-
-	header := fmt.tprintf(
-		"[%v] --- [%v:%v:%v()] ",
-		Log_Level_Headers[level],
-		_log_get_short_path(location.file_path),
-		location.line,
-		location.procedure,
-	)
-
-	for byte in transmute([]u8)header {
-		cpu_port_write_byte(QEMU_DEBUG_PORT, byte)
-	}
-
-	for byte in transmute([]u8)text {
-		cpu_port_write_byte(QEMU_DEBUG_PORT, byte)
-	}
-
-	cpu_port_write_byte(QEMU_DEBUG_PORT, '\n')
+_log :: proc "contextless" (level: Log_Level, message: string, location := #caller_location) {
+	_log_write_char('[')
+	_log_write_string(Log_Level_Headers[level])
+	_log_write_string("] --- [")
+	_log_write_string(_log_get_short_path(location.file_path))
+	_log_write_char(':')
+	_log_write_string(location.procedure)
+	_log_write_char(':')
+	_log_write_int(int(location.line))
+	_log_write_string("] ")
+	_log_write_string(message)
+	_log_write_char('\n')
 }
 
 @(require_results)
@@ -111,4 +51,41 @@ _log_get_short_path :: proc "contextless" (path: string) -> string {
 	}
 
 	return path[start:]
+}
+
+_log_write_char :: #force_inline proc "contextless" (c: byte) {
+	cpu_port_write_byte(0xe9, c)
+}
+
+_log_write_int :: proc "contextless" (n: int) {
+	buf: [32]byte
+	buf_len := 0
+
+	is_negative := n < 0
+	n := abs(n)
+
+	for {
+		buf[buf_len] = '0' + byte(n % 10)
+
+		n /= 10
+		buf_len += 1
+
+		if n <= 0 || buf_len >= len(buf) {
+			break
+		}
+	}
+
+	if is_negative {
+		_log_write_char('-')
+	}
+
+	#reverse for c in buf[:buf_len] {
+		_log_write_char(c)
+	}
+}
+
+_log_write_string :: proc "contextless" (str: string) {
+	for c in transmute([]u8)str {
+		_log_write_char(c)
+	}
 }

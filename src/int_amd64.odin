@@ -1,7 +1,5 @@
 package kernel
 
-import "core:math/bits"
-
 INT_AMD64_DESCRIPTOR_TABLE_LEN :: 256
 
 INT_AMD64_GATE_TYPE_INTERRUPT :: 0xe
@@ -42,9 +40,9 @@ int_amd64_interrupt_descriptor_create :: proc "contextless" (
 	descriptor: Int_AMD64_Descriptor,
 ) {
 	isr := uintptr(isr)
-	descriptor.isr_address_0 = u16(isr & bits.U16_MAX)
-	descriptor.isr_address_1 = u16((isr >> 16) & bits.U16_MAX)
-	descriptor.isr_address_2 = u32((isr >> 32) & bits.U32_MAX)
+	descriptor.isr_address_0 = u16(isr & U16_MAX)
+	descriptor.isr_address_1 = u16((isr >> 16) & U16_MAX)
+	descriptor.isr_address_2 = u32((isr >> 32) & U32_MAX)
 
 	descriptor.type_attributes = INT_AMD64_GATE_TYPE_INTERRUPT | INT_AMD64_PRESENT
 	return
