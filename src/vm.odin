@@ -42,8 +42,8 @@ vm_init :: proc "contextless" (boot_info: Boot_Info) -> (ok: bool) {
 @(require_results)
 vm_address_space_create :: proc "contextless" () -> (address_space: VM_Address_Space) {
 	copy(
-		dst = address_space.page_table[VM_AMD64_PAGE_TABLE_HALF_LEN:],
-		src = vm_kernel_page_table[VM_AMD64_PAGE_TABLE_HALF_LEN:],
+		address_space.page_table[VM_AMD64_PAGE_TABLE_HALF_LEN:],
+		vm_kernel_page_table[VM_AMD64_PAGE_TABLE_HALF_LEN:],
 	)
 
 	return

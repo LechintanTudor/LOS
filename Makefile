@@ -58,6 +58,7 @@ ODIN_SRC = \
 	$(SRC_DIR)/cpu_amd64.odin \
 	$(SRC_DIR)/error.odin \
 	$(SRC_DIR)/fmt.odin \
+	$(SRC_DIR)/int.odin \
 	$(SRC_DIR)/int_amd64.odin \
 	$(SRC_DIR)/list.odin \
 	$(SRC_DIR)/log.odin \

@@ -14,9 +14,13 @@ kernel_main :: proc "contextless" () {
 		cpu_halt_forever()
 	}
 
+	int_amd64_init()
+
 	if !vm_init(boot_info) {
 		cpu_halt_forever()
 	}
+
+	cpu_send_interrupt_100(100)
 
 	framebuffer := boot_info.framebuffers[0]
 	pixels := ([^]u32)(framebuffer.address)

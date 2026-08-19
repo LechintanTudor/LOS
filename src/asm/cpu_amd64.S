@@ -3,6 +3,8 @@
 
 .section .text
 
+.extern int_amd64_handle_interrupt
+
 .global cpu_init
 .type cpu_init @function
 cpu_init:
@@ -54,3 +56,65 @@ cpu_halt_forever:
     1:
         hlt
         jmp 1b
+
+.global cpu_init_interrupts
+.type cpu_init_interrupts @function
+cpu_init_interrupts:
+    lidt (%rdi)
+    sti
+    ret
+
+.global cpu_send_interrupt_100
+.type cpu_send_interrupt_100 @function
+cpu_send_interrupt_100:
+    int $0x64
+    ret
+
+.global cpu_handle_interrupt_100
+.type cpu_handle_interrupt_100 @function
+cpu_handle_interrupt_100:
+    pushq $67  // Error
+    pushq $100 // Vector
+    jmp cpu_handle_interrupt_common
+
+.global cpu_handle_interrupt_common
+.type cpu_handle_interrupt_common @function
+cpu_handle_interrupt_common:
+    pushq %r15
+    pushq %r14
+    pushq %r13
+    pushq %r12
+    pushq %r11
+    pushq %r10
+    pushq %r9
+    pushq %r8
+    pushq %rbp
+    pushq %rdi
+    pushq %rsi
+    pushq %rdx
+    pushq %rcx
+    pushq %rbx
+    pushq %rax
+
+    cld
+    movq %rsp, %rdi
+    call int_amd64_handle_interrupt
+
+    popq %rax
+    popq %rbx
+    popq %rcx
+    popq %rdx
+    popq %rsi
+    popq %rdi
+    popq %rbp
+    popq %r8
+    popq %r9
+    popq %r10
+    popq %r11
+    popq %r12
+    popq %r13
+    popq %r14
+    popq %r15
+
+    addq $16, %rsp
+    iretq
