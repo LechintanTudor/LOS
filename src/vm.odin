@@ -32,7 +32,7 @@ vm_init :: proc "contextless" (boot_info: Boot_Info) -> (ok: bool) {
 
 	vm_kernel_page_table = vm_pointer_from_physical_address(
 		VM_AMD64_Page_Table,
-		vm_amd64_get_page_table_physical_address(cpu_get_cr3()),
+		vm_amd64_get_page_table_physical_address(cpu_amd64_get_cr3()),
 	)
 
 	page_init(boot_info) or_return

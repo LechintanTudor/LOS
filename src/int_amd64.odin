@@ -76,7 +76,7 @@ int_amd64_init :: proc "contextless" () {
 		base  = uintptr(&int_amd64_interrupt_descriptor_table),
 	}
 
-	cpu_init_interrupts(&idtr)
+	cpu_amd64_enable_interrupts(&idtr)
 }
 
 @(require_results)

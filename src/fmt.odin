@@ -10,6 +10,10 @@ fmt_create :: proc "contextless" (buf: []byte) -> Fmt {
 	return {buf = buf}
 }
 
+fmt_clear :: proc "contextless" (fmt: ^Fmt) {
+	fmt.len = 0
+}
+
 @(require_results)
 fmt_get :: proc "contextless" (fmt: Fmt) -> string {
 	return string(fmt.buf[:fmt.len])

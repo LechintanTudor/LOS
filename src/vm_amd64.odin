@@ -43,9 +43,9 @@ vm_amd64_convert_flags :: #force_inline proc "contextless" (
 
 @(require_results)
 vm_amd64_get_page_table_physical_address :: #force_inline proc "contextless" (
-	cr3: uintptr,
+	cr3: u64,
 ) -> VM_Physical_Address {
-	return VM_Physical_Address(cr3 & ~uintptr(PAGE_MASK))
+	return VM_Physical_Address(cr3 & ~u64(PAGE_MASK))
 }
 
 // Get the PML4 (Page Map Level 4) index from a virtual address.

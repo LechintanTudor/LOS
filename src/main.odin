@@ -11,13 +11,13 @@ kernel_main :: proc "contextless" () {
 	boot_info, boot_ok := boot_init()
 
 	if !boot_ok {
-		cpu_halt_forever()
+		cpu_halt_and_catch_fire()
 	}
 
-	int_amd64_init()
+	int_init()
 
 	if !vm_init(boot_info) {
-		cpu_halt_forever()
+		cpu_halt_and_catch_fire()
 	}
 
 	cpu_send_interrupt_100(100)
@@ -34,20 +34,20 @@ kernel_main :: proc "contextless" () {
 		}
 	}
 
-	cpu_halt_forever()
+	cpu_halt_and_catch_fire()
 }
 
 @(private = "file", require, link_name = "__truncdfsf2")
 _unused_0 :: proc "sysv" () -> ! {
-	cpu_halt_forever()
+	cpu_halt_and_catch_fire()
 }
 
 @(private = "file", require, link_name = "__mulsf3")
 _unused_1 :: proc "sysv" () -> ! {
-	cpu_halt_forever()
+	cpu_halt_and_catch_fire()
 }
 
 @(private = "file", require, link_name = "__gesf2")
 _unused_2 :: proc "sysv" () -> ! {
-	cpu_halt_forever()
+	cpu_halt_and_catch_fire()
 }

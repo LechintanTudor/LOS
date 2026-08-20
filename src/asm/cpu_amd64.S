@@ -28,40 +28,12 @@ cpu_init:
 
     ret
 
-.global cpu_get_cr3
-.type cpu_get_cr3 @function
-cpu_get_cr3:
-    movq %cr3, %rax
-    ret
-
-.global cpu_set_cr3
-.type cpu_set_cr3 @function
-cpu_set_cr3:
-    movq %rdi, %cr3
-    ret
-
 .global cpu_port_write_byte
 .type cpu_port_write_byte @function
 cpu_port_write_byte:
     movw %di, %dx
     movb %sil, %al
     outb %al, %dx
-    ret
-
-.global cpu_halt_forever
-.type cpu_halt_forever @function
-cpu_halt_forever:
-    cli
-
-    1:
-        hlt
-        jmp 1b
-
-.global cpu_init_interrupts
-.type cpu_init_interrupts @function
-cpu_init_interrupts:
-    lidt (%rdi)
-    sti
     ret
 
 .global cpu_send_interrupt_100
