@@ -29,17 +29,17 @@ _log :: proc "contextless" (level: Log_Level, message: string, location := #call
 	fmt_buf: [256]byte = ---
 	fmt := fmt_create(fmt_buf[:])
 
-	fmt_char(&fmt, '[')
-	fmt_string(&fmt, Log_Level_Headers[level])
-	fmt_string(&fmt, "] --- [")
-	fmt_string(&fmt, _log_get_short_path(location.file_path))
-	fmt_char(&fmt, ':')
-	fmt_string(&fmt, location.procedure)
-	fmt_char(&fmt, ':')
-	fmt_int(&fmt, int(location.line))
-	fmt_string(&fmt, "] ")
-	fmt_string(&fmt, message)
-	fmt_char(&fmt, '\n')
+	fmt_write(&fmt, "[")
+	fmt_write(&fmt, Log_Level_Headers[level])
+	fmt_write(&fmt, "] --- [")
+	fmt_write(&fmt, _log_get_short_path(location.file_path))
+	fmt_write(&fmt, ":")
+	fmt_write(&fmt, location.procedure)
+	fmt_write(&fmt, ":")
+	fmt_write(&fmt, int(location.line))
+	fmt_write(&fmt, "] ")
+	fmt_write(&fmt, message)
+	fmt_write(&fmt, "\n")
 
 	_log_write_string(fmt_get(fmt))
 }

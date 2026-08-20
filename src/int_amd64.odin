@@ -101,9 +101,9 @@ int_amd64_interrupt_descriptor_create :: proc "contextless" (
 int_amd64_handle_interrupt :: proc "contextless" (frame: ^Int_AMD64_Interrupt_Frame) {
 	fmt_buf: [128]byte = ---
 	fmt := fmt_create(fmt_buf[:])
-	fmt_string(&fmt, "Vector: ")
-	fmt_int(&fmt, frame.vector)
-	fmt_string(&fmt, ", Error: ")
-	fmt_int(&fmt, frame.error)
+	fmt_write(&fmt, "Vector: ")
+	fmt_write(&fmt, frame.vector)
+	fmt_write(&fmt, ", Error: ")
+	fmt_write(&fmt, frame.error)
 	log_info(fmt_get(fmt))
 }

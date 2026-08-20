@@ -19,17 +19,12 @@ fmt_get :: proc "contextless" (fmt: Fmt) -> string {
 	return string(fmt.buf[:fmt.len])
 }
 
-fmt_char :: proc "contextless" (fmt: ^Fmt, char: byte) -> (ok: bool) {
-	if _fmt_remaining_len(fmt^) < 1 {
-		return false
-	}
-
-	fmt.buf[fmt.len] = char
-	fmt.len += 1
-	return true
+fmt_write :: proc {
+	fmt_write_string,
+	fmt_write_int,
 }
 
-fmt_string :: proc "contextless" (fmt: ^Fmt, str: string) -> (ok: bool) {
+fmt_write_string :: proc "contextless" (fmt: ^Fmt, str: string) -> (ok: bool) {
 	if _fmt_remaining_len(fmt^) < len(str) {
 		return false
 	}
@@ -40,12 +35,12 @@ fmt_string :: proc "contextless" (fmt: ^Fmt, str: string) -> (ok: bool) {
 }
 
 
-fmt_int :: proc "contextless" (fmt: ^Fmt, #any_int n: int) -> (ok: bool) {
+fmt_write_int :: proc "contextless" (fmt: ^Fmt, #any_int n: int) -> (ok: bool) {
 	// Save the original length in case we need to revert.
 	start_len := fmt.len
 
 	if n < 0 {
-		fmt_char(fmt, '-') or_return
+		fmt_write(fmt, "-") or_return
 	}
 
 	// Use the formatter buffer as scrach space.
