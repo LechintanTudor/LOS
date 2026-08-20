@@ -6,7 +6,7 @@ foreign _ {
 
 	cpu_port_write_byte :: proc(port: u16, data: byte) ---
 
-	cpu_send_interrupt_100 :: proc(vector: u8) ---
+	cpu_send_interrupt_100 :: proc() ---
 
 	cpu_handle_interrupt_100 :: proc() ---
 }
