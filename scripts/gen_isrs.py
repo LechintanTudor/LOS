@@ -32,19 +32,19 @@ $data_generated
 
 .extern cpu_handle_interrupt_common
 
-.macro DEFINE_SYNTHETIC_ERROR_ISR vector
+.macro DEFINE_ISR_WITH_REAL_ERROR vector
     .global cpu_handle_interrupt_\vector
     .type cpu_handle_interrupt_\vector @function
     cpu_handle_interrupt_\vector:
-        push 0
         push \vector
         jmp cpu_handle_interrupt_common
 .endm
 
-.macro DEFINE_ISR vector
+.macro DEFINE_ISR_WITH_SYNTHETIC_ERROR vector
     .global cpu_handle_interrupt_\vector
     .type cpu_handle_interrupt_\vector @function
     cpu_handle_interrupt_\vector:
+        push 0
         push \vector
         jmp cpu_handle_interrupt_common
 .endm
@@ -61,9 +61,9 @@ def main():
     text_strs: list[str] = []
     for i in range(256):
         if i in ISRS_WITH_ERRORS:
-            text = f"DEFINE_ISR {i}"
+            text = f"DEFINE_ISR_WITH_REAL_ERROR {i}"
         else:
-            text = f"DEFINE_SYNTHETIC_ERROR_ISR {i}"
+            text = f"DEFINE_ISR_WITH_SYNTHETIC_ERROR {i}"
 
         text_strs.append(text)
 
