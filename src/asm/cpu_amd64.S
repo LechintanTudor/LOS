@@ -44,13 +44,6 @@ cpu_send_interrupt_100:
     int 100
     ret
 
-.global cpu_handle_interrupt_100
-.type cpu_handle_interrupt_100 @function
-cpu_handle_interrupt_100:
-    push 67  // Error
-    push 100 // Vector
-    jmp cpu_handle_interrupt_common
-
 .global cpu_handle_interrupt_common
 .type cpu_handle_interrupt_common @function
 cpu_handle_interrupt_common:

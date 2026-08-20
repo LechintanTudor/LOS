@@ -24,7 +24,9 @@ RUN_ALL = \
 #
 
 BUILD_DIR = build
-BUILD_ASM_OBJ = $(BUILD_DIR)/asm.o
+BUILD_ASM_OBJ = $(BUILD_DIR)/cpu_amd64.o
+BUILD_INT_ASM_OBJ = $(BUILD_DIR)/cpu_int_amd64.o
+BUILD_ASM_OBJS = $(BUILD_ASM_OBJ) $(BUILD_INT_ASM_OBJ)
 BUILD_KERNEL_OBJ = $(BUILD_DIR)/kernel.o
 BUILD_KERNEL = $(BUILD_DIR)/kernel.elf
 
@@ -50,7 +52,7 @@ ODIN_BUILD_FLAGS = \
 
 SRC_DIR = src
 
-ASM_SRC = $(SRC_DIR)/asm/cpu_amd64.S
+ASM_SRC_DIR = $(SRC_DIR)/asm
 
 ODIN_SRC = \
 	$(SRC_DIR)/bits.odin \
@@ -118,16 +120,20 @@ $(EFI_BOOT_LOADER): extern/limine/bin/BOOTX64.EFI
 # Build
 #
 
-$(BUILD_ASM_OBJ): $(ASM_SRC)
+$(BUILD_ASM_OBJ): $(ASM_SRC_DIR)/cpu_amd64.S
 	mkdir -p "$(BUILD_DIR)"
-	clang -c -o "$@" $(ASM_SRC)
+	clang -c -o "$@" "$<"
+
+$(BUILD_INT_ASM_OBJ): $(ASM_SRC_DIR)/cpu_int_amd64.S
+	mkdir -p "$(BUILD_DIR)"
+	clang -c -o "$@" "$<"
 
 $(BUILD_KERNEL_OBJ): $(ODIN_SRC)
 	mkdir -p "$(BUILD_DIR)"
 	odin build $(SRC_DIR) -out:"$@" $(ODIN_BUILD_FLAGS)
 
-$(BUILD_KERNEL): $(BUILD_KERNEL_OBJ) $(BUILD_ASM_OBJ) config/link.ld
-	ld.lld $(BUILD_KERNEL_OBJ) $(BUILD_ASM_OBJ) \
+$(BUILD_KERNEL): $(BUILD_KERNEL_OBJ) $(BUILD_ASM_OBJS) config/link.ld
+	ld.lld $(BUILD_KERNEL_OBJ) $(BUILD_ASM_OBJS) \
 	    -o "$@" \
 	    --nostdlib \
 	    --static \
