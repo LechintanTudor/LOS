@@ -3,6 +3,8 @@
 import sys
 from string import Template
 
+ISR_COUNT = 256
+
 ISRS_WITH_ERRORS = {
     8,  # DF - Double Fault
     10,  # TS - Invalid TSS
@@ -24,29 +26,29 @@ TEMPLATE = r"""
 .section .data
 
 .balign 8
-.global cpu_interrupt_handlers
-cpu_interrupt_handlers:
+.global cpu_amd64_interrupt_handlers
+cpu_amd64_interrupt_handlers:
 $data_generated
 
 .section .text
 
-.extern cpu_handle_interrupt_common
+.extern cpu_amd64_handle_interrupt_common
 
 .macro DEFINE_ISR_WITH_REAL_ERROR vector
-    .global cpu_handle_interrupt_\vector
-    .type cpu_handle_interrupt_\vector @function
-    cpu_handle_interrupt_\vector:
+    .global cpu_amd64_handle_interrupt_\vector
+    .type cpu_amd64_handle_interrupt_\vector @function
+    cpu_amd64_handle_interrupt_\vector:
         push \vector
-        jmp cpu_handle_interrupt_common
+        jmp cpu_amd64_handle_interrupt_common
 .endm
 
 .macro DEFINE_ISR_WITH_SYNTHETIC_ERROR vector
-    .global cpu_handle_interrupt_\vector
-    .type cpu_handle_interrupt_\vector @function
-    cpu_handle_interrupt_\vector:
+    .global cpu_amd64_handle_interrupt_\vector
+    .type cpu_amd64_handle_interrupt_\vector @function
+    cpu_amd64_handle_interrupt_\vector:
         push 0
         push \vector
-        jmp cpu_handle_interrupt_common
+        jmp cpu_amd64_handle_interrupt_common
 .endm
 
 $text_generated
@@ -55,11 +57,11 @@ $text_generated
 
 def main():
     data_strs: list[str] = []
-    for i in range(256):
-        data_strs.append(f"    .quad cpu_handle_interrupt_{i}")
+    for i in range(ISR_COUNT):
+        data_strs.append(f"    .quad cpu_amd64_handle_interrupt_{i}")
 
     text_strs: list[str] = []
-    for i in range(256):
+    for i in range(ISR_COUNT):
         if i in ISRS_WITH_ERRORS:
             text = f"DEFINE_ISR_WITH_REAL_ERROR {i}"
         else:

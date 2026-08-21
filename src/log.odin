@@ -60,6 +60,6 @@ _log_get_short_path :: proc "contextless" (path: string) -> string {
 
 _log_write_string :: proc "contextless" (str: string) {
 	for c in transmute([]u8)str {
-		cpu_port_write_byte(0xe9, c)
+		cpu_amd64_port_write_byte(0xe9, c)
 	}
 }

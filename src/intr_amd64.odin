@@ -68,7 +68,7 @@ INTR_AMD64_Interrupt_Frame :: struct {
 
 intr_amd64_init :: proc "contextless" () {
 	for &descriptor, i in intr_amd64_interrupt_descriptor_table {
-		descriptor = intr_amd64_interrupt_descriptor_create(cpu_interrupt_handlers[i])
+		descriptor = intr_amd64_interrupt_descriptor_create(cpu_amd64_interrupt_handlers[i])
 	}
 
 	idtr := INTR_AMD64_Interrupt_Descriptor_Table_Register {
@@ -76,7 +76,7 @@ intr_amd64_init :: proc "contextless" () {
 		base  = uintptr(&intr_amd64_interrupt_descriptor_table),
 	}
 
-	cpu_enable_interrupts(&idtr)
+	cpu_amd64_enable_interrupts(&idtr)
 }
 
 @(require_results)

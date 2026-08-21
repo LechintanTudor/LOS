@@ -7,9 +7,9 @@
 
 .extern intr_amd64_handle_interrupt
 
-.global cpu_init
-.type cpu_init @function
-cpu_init:
+.global cpu_amd64_init
+.type cpu_amd64_init @function
+cpu_amd64_init:
     # Bit 1: Enable Monitor co-processor.
     # Bit 2: Disable x87 FPU Emulation.
     mov rax, cr0
@@ -30,23 +30,23 @@ cpu_init:
 
     ret
 
-.global cpu_port_write_byte
-.type cpu_port_write_byte @function
-cpu_port_write_byte:
+.global cpu_amd64_port_write_byte
+.type cpu_amd64_port_write_byte @function
+cpu_amd64_port_write_byte:
     mov dx, di
     mov al, sil
     out dx, al
     ret
 
-.global cpu_send_interrupt_100
-.type cpu_send_interrupt_100 @function
-cpu_send_interrupt_100:
+.global cpu_amd64_send_interrupt_100
+.type cpu_amd64_send_interrupt_100 @function
+cpu_amd64_send_interrupt_100:
     int 100
     ret
 
-.global cpu_handle_interrupt_common
-.type cpu_handle_interrupt_common @function
-cpu_handle_interrupt_common:
+.global cpu_amd64_handle_interrupt_common
+.type cpu_amd64_handle_interrupt_common @function
+cpu_amd64_handle_interrupt_common:
     push r15
     push r14
     push r13
