@@ -2,7 +2,7 @@ package kernel
 
 @(default_calling_convention = "sysv")
 foreign _ {
-	cpu_interrupt_handlers: [INT_AMD64_INTERRUPT_DESCRIPTOR_TABLE_LEN]rawptr
+	cpu_interrupt_handlers: [INTR_AMD64_INTERRUPT_DESCRIPTOR_TABLE_LEN]rawptr
 
 	cpu_init :: proc() ---
 
@@ -13,7 +13,7 @@ foreign _ {
 	cpu_handle_interrupt_100 :: proc() ---
 }
 
-cpu_enable_interrupts :: asm(idtr: ^Int_AMD64_Interrupt_Descriptor_Table_Register) {
+cpu_enable_interrupts :: asm(idtr: ^INTR_AMD64_Interrupt_Descriptor_Table_Register) {
     lidt [idtr]
     sti
 }

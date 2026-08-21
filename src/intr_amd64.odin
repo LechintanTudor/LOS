@@ -1,14 +1,14 @@
 package kernel
 
-INT_AMD64_INTERRUPT_DESCRIPTOR_TABLE_LEN :: 256
+INTR_AMD64_INTERRUPT_DESCRIPTOR_TABLE_LEN :: 256
 
-INT_AMD64_ATTRIBUTE_INTERRUPT :: 0x8e
+INTR_AMD64_ATTRIBUTE_INTERRUPT :: 0x8e
 
-INT_AMD64_ATTRIBUTE_TRAP :: 0x8f
+INTR_AMD64_ATTRIBUTE_TRAP :: 0x8f
 
-int_amd64_interrupt_descriptor_table: [INT_AMD64_INTERRUPT_DESCRIPTOR_TABLE_LEN]Int_AMD64_Interrupt_Descriptor
+intr_amd64_interrupt_descriptor_table: [INTR_AMD64_INTERRUPT_DESCRIPTOR_TABLE_LEN]INTR_AMD64_Interrupt_Descriptor
 
-Int_AMD64_Interrupt_Descriptor :: struct {
+INTR_AMD64_Interrupt_Descriptor :: struct {
 	// ISR address bits 0 ..< 16.
 	isr_address_0: u16,
 
@@ -31,12 +31,12 @@ Int_AMD64_Interrupt_Descriptor :: struct {
 	reserved:      u32,
 }
 
-Int_AMD64_Interrupt_Descriptor_Table_Register :: struct #packed {
+INTR_AMD64_Interrupt_Descriptor_Table_Register :: struct #packed {
 	limit: u16,
 	base:  uintptr,
 }
 
-Int_AMD64_Interrupt_Frame :: struct {
+INTR_AMD64_Interrupt_Frame :: struct {
 	// Saved registers.
 	rax:    u64,
 	rbx:    u64,
@@ -66,26 +66,24 @@ Int_AMD64_Interrupt_Frame :: struct {
 	ss:     u64,
 }
 
-int_amd64_init :: proc "contextless" () {
-	for &descriptor, i in int_amd64_interrupt_descriptor_table {
-		descriptor = int_amd64_interrupt_descriptor_create(
-			cpu_interrupt_handlers[i],
-		)
+intr_amd64_init :: proc "contextless" () {
+	for &descriptor, i in intr_amd64_interrupt_descriptor_table {
+		descriptor = intr_amd64_interrupt_descriptor_create(cpu_interrupt_handlers[i])
 	}
 
-	idtr := Int_AMD64_Interrupt_Descriptor_Table_Register {
-		limit = size_of(int_amd64_interrupt_descriptor_table) - 1,
-		base  = uintptr(&int_amd64_interrupt_descriptor_table),
+	idtr := INTR_AMD64_Interrupt_Descriptor_Table_Register {
+		limit = size_of(intr_amd64_interrupt_descriptor_table) - 1,
+		base  = uintptr(&intr_amd64_interrupt_descriptor_table),
 	}
 
 	cpu_enable_interrupts(&idtr)
 }
 
 @(require_results)
-int_amd64_interrupt_descriptor_create :: proc "contextless" (
+intr_amd64_interrupt_descriptor_create :: proc "contextless" (
 	isr: rawptr,
 ) -> (
-	descriptor: Int_AMD64_Interrupt_Descriptor,
+	descriptor: INTR_AMD64_Interrupt_Descriptor,
 ) {
 	isr := uintptr(isr)
 	descriptor.isr_address_0 = u16(isr & U16_MAX)
@@ -93,12 +91,12 @@ int_amd64_interrupt_descriptor_create :: proc "contextless" (
 	descriptor.isr_address_2 = u32((isr >> 32) & U32_MAX)
 
 	descriptor.selector = 0x28
-	descriptor.attributes = INT_AMD64_ATTRIBUTE_INTERRUPT
+	descriptor.attributes = INTR_AMD64_ATTRIBUTE_INTERRUPT
 	return
 }
 
 @(export)
-int_amd64_handle_interrupt :: proc "contextless" (frame: ^Int_AMD64_Interrupt_Frame) {
+intr_amd64_handle_interrupt :: proc "contextless" (frame: ^INTR_AMD64_Interrupt_Frame) {
 	fmt_buf: [128]byte = ---
 	fmt := fmt_create(fmt_buf[:])
 	fmt_write(&fmt, "Vector: ")

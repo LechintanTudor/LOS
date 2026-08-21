@@ -14,7 +14,7 @@ kernel_main :: proc "contextless" () {
 		cpu_halt_and_catch_fire()
 	}
 
-	int_init()
+	intr_init()
 
 	if !vm_init(boot_info) {
 		cpu_halt_and_catch_fire()

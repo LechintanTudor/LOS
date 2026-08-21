@@ -5,7 +5,7 @@
 
 .section .text
 
-.extern int_amd64_handle_interrupt
+.extern intr_amd64_handle_interrupt
 
 .global cpu_init
 .type cpu_init @function
@@ -65,7 +65,7 @@ cpu_handle_interrupt_common:
 
     cld
     mov rdi, rsp
-    call int_amd64_handle_interrupt
+    call intr_amd64_handle_interrupt
 
     pop rax
     pop rbx

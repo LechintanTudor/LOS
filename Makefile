@@ -25,8 +25,8 @@ RUN_ALL = \
 
 BUILD_DIR = build
 BUILD_ASM_OBJ = $(BUILD_DIR)/cpu_amd64.o
-BUILD_INT_ASM_OBJ = $(BUILD_DIR)/cpu_int_amd64.o
-BUILD_ASM_OBJS = $(BUILD_ASM_OBJ) $(BUILD_INT_ASM_OBJ)
+BUILD_INTR_ASM_OBJ = $(BUILD_DIR)/cpu_intr_amd64.o
+BUILD_ASM_OBJS = $(BUILD_ASM_OBJ) $(BUILD_INTR_ASM_OBJ)
 BUILD_KERNEL_OBJ = $(BUILD_DIR)/kernel.o
 BUILD_KERNEL = $(BUILD_DIR)/kernel.elf
 
@@ -60,8 +60,8 @@ ODIN_SRC = \
 	$(SRC_DIR)/cpu_amd64.odin \
 	$(SRC_DIR)/error.odin \
 	$(SRC_DIR)/fmt.odin \
-	$(SRC_DIR)/int.odin \
-	$(SRC_DIR)/int_amd64.odin \
+	$(SRC_DIR)/intr.odin \
+	$(SRC_DIR)/intr_amd64.odin \
 	$(SRC_DIR)/list.odin \
 	$(SRC_DIR)/log.odin \
 	$(SRC_DIR)/main.odin \
@@ -124,7 +124,7 @@ $(BUILD_ASM_OBJ): $(ASM_SRC_DIR)/cpu_amd64.S
 	mkdir -p "$(BUILD_DIR)"
 	clang -c -o "$@" "$<"
 
-$(BUILD_INT_ASM_OBJ): $(ASM_SRC_DIR)/cpu_int_amd64.S
+$(BUILD_INTR_ASM_OBJ): $(ASM_SRC_DIR)/cpu_intr_amd64.S
 	mkdir -p "$(BUILD_DIR)"
 	clang -c -o "$@" "$<"
 
