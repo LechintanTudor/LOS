@@ -34,6 +34,11 @@ kernel_main :: proc "contextless" () {
 		}
 	}
 
+	{
+		ptr := (^u64)(uintptr(0x0000000000010f2c))
+		intrinsics.volatile_store(ptr, 100)
+	}
+
 	cpu_halt_and_catch_fire()
 }
 

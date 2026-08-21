@@ -18,6 +18,11 @@ cpu_amd64_enable_interrupts :: asm(idtr: ^INTR_AMD64_Interrupt_Descriptor_Table_
     sti
 }
 
+@(require_results)
+cpu_amd64_get_cr2 :: asm() -> (cr2: u64) {
+	mov cr2, %cr2
+}
+
 cpu_amd64_set_cr3 :: asm(cr3: u64) [#volatile] {
 	mov %cr3, cr3
 }

@@ -97,11 +97,18 @@ intr_amd64_interrupt_descriptor_create :: proc "contextless" (
 
 @(export)
 intr_amd64_handle_interrupt :: proc "contextless" (frame: ^INTR_AMD64_Interrupt_Frame) {
-	fmt_buf: [128]byte = ---
-	fmt := fmt_create(fmt_buf[:])
-	fmt_write(&fmt, "Vector: ")
-	fmt_write(&fmt, frame.vector)
-	fmt_write(&fmt, ", Error: ")
-	fmt_write(&fmt, frame.error)
-	log_info(fmt_get(fmt))
+	switch frame.vector {
+	case 14:
+		address := VM_Virtual_Address(cpu_amd64_get_cr2())
+		vm_handle_page_fault(address)
+
+	case:
+		fmt_buf: [128]byte = ---
+		fmt := fmt_create(fmt_buf[:])
+		fmt_write(&fmt, "Vector: ")
+		fmt_write(&fmt, frame.vector)
+		fmt_write(&fmt, ", Error: ")
+		fmt_write(&fmt, frame.error)
+		log_info(fmt_get(fmt))
+	}
 }

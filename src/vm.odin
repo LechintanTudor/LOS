@@ -39,6 +39,16 @@ vm_init :: proc "contextless" (boot_info: Boot_Info) -> (ok: bool) {
 	return true
 }
 
+vm_handle_page_fault :: proc "contextless" (address: VM_Virtual_Address) {
+	fmt_buf: [128]byte
+	fmt := fmt_create(fmt_buf[:])
+	fmt_write(&fmt, "Page fault at address: ")
+	fmt_write(&fmt, address)
+	log_info(fmt_get(fmt))
+
+	cpu_halt_and_catch_fire()
+}
+
 @(require_results)
 vm_address_space_create :: proc "contextless" () -> (address_space: VM_Address_Space) {
 	copy(
