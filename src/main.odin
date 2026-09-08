@@ -20,7 +20,7 @@ kernel_main :: proc "contextless" () {
 		cpu_halt_and_catch_fire()
 	}
 
-	cpu_amd64_send_interrupt_100()
+	cpu_amd64_send_interrupt(100)
 
 	framebuffer := boot_info.framebuffers[0]
 	pixels := ([^]u32)(framebuffer.address)

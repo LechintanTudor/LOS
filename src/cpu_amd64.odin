@@ -7,15 +7,15 @@ foreign _ {
 	cpu_amd64_init :: proc() ---
 
 	cpu_amd64_port_write_byte :: proc(port: u16, data: byte) ---
-
-	cpu_amd64_send_interrupt_100 :: proc() ---
-
-	cpu_amd64_handle_interrupt_100 :: proc() ---
 }
 
 cpu_amd64_enable_interrupts :: asm(idtr: ^INTR_AMD64_Interrupt_Descriptor_Table_Register) {
     lidt [idtr]
     sti
+}
+
+cpu_amd64_send_interrupt :: asm($vector: u8) {
+	int vector
 }
 
 @(require_results)

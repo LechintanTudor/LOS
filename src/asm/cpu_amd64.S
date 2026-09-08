@@ -38,12 +38,6 @@ cpu_amd64_port_write_byte:
     out dx, al
     ret
 
-.global cpu_amd64_send_interrupt_100
-.type cpu_amd64_send_interrupt_100 @function
-cpu_amd64_send_interrupt_100:
-    int 100
-    ret
-
 .global cpu_amd64_handle_interrupt_common
 .type cpu_amd64_handle_interrupt_common @function
 cpu_amd64_handle_interrupt_common:
