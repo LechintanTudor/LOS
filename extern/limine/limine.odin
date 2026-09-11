@@ -462,6 +462,19 @@ tsc_frequency_request :: struct {
 	response: ^tsc_frequency_response,
 }
 
+entropy_response :: struct {
+	revision:    u64,
+	value_count: u64,
+	values:      ^u64,
+}
+
+entropy_request :: struct {
+	id:          [4]u64,
+	revision:    u64,
+	response:    ^entropy_response,
+	value_count: u64,
+}
+
 // odinfmt: disable
 
 COMMON_MAGIC :: [2]u64{

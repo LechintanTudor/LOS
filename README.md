@@ -4,7 +4,7 @@ Lechi's Operating System
 
 ## Limine
 
-This project uses the Limine bootloader, version 12.6.1. To upgrade to the
+This project uses the Limine bootloader, version 12.9.0. To upgrade to the
 latest version, follow these steps:
 
 1. Download the latest release tarball from [here][limine-releases].
